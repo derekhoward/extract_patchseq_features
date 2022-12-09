@@ -8,7 +8,7 @@ from ipfx.dataset.create import create_ephys_data_set
 from ipfx.utilities import drop_failed_sweeps
 from ipfx.data_set_features import extract_data_set_features
 from ipfx.error import FeatureError
-from ipfx.qc_feature_extractor import cell_qc_features
+from ipfx.qc_feature_extractor import sweep_qc_features, cell_qc_features
 
 def process_dataset_sweeps(data_set):
     drop_failed_sweeps(data_set)
@@ -60,6 +60,8 @@ def generated_formatted_features_output(nwb_path):
 
     try:
         data_set = create_ephys_data_set(nwb_file=nwb_path)
+        sweep_features = sweep_qc_features(data_set)
+        qc_features, cell_tags = cell_qc_features(data_set)
         lsa_sweeps = process_dataset_sweeps(data_set)
         lsa_features = extract_features(lsa_sweeps)
 
@@ -100,18 +102,16 @@ def generated_formatted_features_output(nwb_path):
         experiment_features['rheo_trough_t'] = rheobase_features.loc[0, 'trough_t']
         experiment_features['rheo_slow_trough_t'] = rheobase_features.loc[0, 'slow_trough_t']
         experiment_features['rheo_peak_v'] = lsa_features['rheobase_sweep'].peak_deflect[0]
-        
-        qc_features = cell_qc_features(data_set)
 
         # identify qc_features
-        experiment_features['qc_blowout_mv'] = qc_features[0]['blowout_mv']
-        experiment_features['qc_electrode_0_pa'] = qc_features[0]['electrode_0_pa']
-        experiment_features['qc_recording_date'] = qc_features[0]['recording_date']
-        experiment_features['qc_seal_gohm'] = qc_features[0]['seal_gohm']
-        experiment_features['qc_input_resistance_mohm'] = qc_features[0]['input_resistance_mohm']
-        experiment_features['qc_initial_access_resistance_mohm'] = qc_features[0]['initial_access_resistance_mohm']
-        experiment_features['qc_input_access_resistance_ratio'] = qc_features[0]['input_access_resistance_ratio']
-        print(qc_features[1])
+        experiment_features['qc_blowout_mv'] = qc_features['blowout_mv']
+        experiment_features['qc_electrode_0_pa'] = qc_features['electrode_0_pa']
+        experiment_features['qc_recording_date'] = qc_features['recording_date']
+        experiment_features['qc_seal_gohm'] = qc_features['seal_gohm']
+        experiment_features['qc_input_resistance_mohm'] = qc_features['input_resistance_mohm']
+        experiment_features['qc_initial_access_resistance_mohm'] = qc_features['initial_access_resistance_mohm']
+        experiment_features['qc_input_access_resistance_ratio'] = qc_features['input_access_resistance_ratio']
+        print(cell_tags)
     
     except (FeatureError, ValueError, TypeError, KeyError) as e:
         print(f'Error in {nwb_path}: {e}')

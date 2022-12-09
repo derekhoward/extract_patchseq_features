@@ -18,4 +18,4 @@ if __name__ == '__main__':
     print(f"Total time taken {datetime.now() - start_time} ")
     feature_df = pd.DataFrame(result)
     feature_df.set_index('filename')
-    feature_df.to_csv('human_ephys_features_gouwens_w_QC.csv')
+    feature_df.to_csv('ephys_features_gouwens_w_QC.csv')
