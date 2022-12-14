@@ -1,12 +1,10 @@
 from pathlib import Path
-import pandas as pd
 
 from ipfx.feature_extractor import (SpikeFeatureExtractor, SpikeTrainFeatureExtractor)
 import ipfx.stimulus_protocol_analysis as spa
 from ipfx.epochs import get_stim_epoch
 from ipfx.dataset.create import create_ephys_data_set
 from ipfx.utilities import drop_failed_sweeps
-from ipfx.data_set_features import extract_data_set_features
 from ipfx.error import FeatureError
 from ipfx.qc_feature_extractor import sweep_qc_features, cell_qc_features
 
@@ -86,7 +84,7 @@ def generated_formatted_features_output(nwb_path):
 
         # Extract features from rheobase
 
-        ## identify rheobase index sweep to extract additinal rheobase features
+        # identify rheobase index sweep to extract additinal rheobase features
         rheobase_index = lsa_features['rheobase_sweep'].name
         rheobase_features = lsa_features['spikes_set'][rheobase_index]
 
@@ -102,6 +100,9 @@ def generated_formatted_features_output(nwb_path):
         experiment_features['rheo_trough_t'] = rheobase_features.loc[0, 'trough_t']
         experiment_features['rheo_slow_trough_t'] = rheobase_features.loc[0, 'slow_trough_t']
         experiment_features['rheo_peak_v'] = lsa_features['rheobase_sweep'].peak_deflect[0]
+
+        # identify maximal firing index sweep to extract additinal maximal firing features
+        experiment_features['maximal_firing_rate'] = lsa_features['sweeps']['avg_rate'].values.max()
 
         # identify qc_features
         experiment_features['qc_blowout_mv'] = qc_features['blowout_mv']
